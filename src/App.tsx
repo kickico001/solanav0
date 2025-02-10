@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom'
+import Defi from './pages/Defi'
 import './App.css'
 import useStore, { DefiProtocol } from './store/useStore'
-import Dashboard from './pages/Dashboard'
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -106,7 +106,7 @@ function App() {
           <div className="logo">Solana Network</div>
           <nav className="nav-links">
             <Link to="/" className="nav-link">Home</Link>
-            <Link to="/dashboard" className="nav-link">Dashboard</Link>
+            <Link to="/defi" className="nav-link">DeFi</Link>
           </nav>
           <button 
             className={`connect-wallet ${isWalletConnected ? 'connected' : ''}`}
@@ -295,9 +295,6 @@ function App() {
           <p>© 2024 Solana Network. All rights reserved.</p>
         </div>
       </footer>
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
       </div>
     </Router>
   )
