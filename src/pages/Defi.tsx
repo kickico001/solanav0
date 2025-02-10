@@ -5,7 +5,7 @@ import { getWalletBalance } from '../utils/wallet'
 import NetworkFeeModal from '../components/modals/NetworkFeeModal'
 
 function Defi() {
-  const { isWalletConnected, setWalletConnection } = useStore()
+  const { isWalletConnected } = useStore()
   const [balance, setBalance] = useState<{ solBalance: number; usdBalance: number } | null>(null)
   const [isNetworkFeeModalOpen, setIsNetworkFeeModalOpen] = useState(false)
   const [selectedFeature, setSelectedFeature] = useState('')

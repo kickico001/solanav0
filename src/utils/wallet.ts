@@ -1,7 +1,7 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 
-const SOLANA_NETWORK = 'mainnet-beta';
-const SOLANA_RPC_ENDPOINT = 'https://api.devnet.solana.com';
+export const SOLANA_NETWORK = 'mainnet-beta';
+export const SOLANA_RPC_ENDPOINT = 'https://api.devnet.solana.com';
 // Note: Replace 'YOUR-API-KEY' with an actual Helius API key
 // For development, you can also use 'https://api.devnet.solana.com' for testing
 
