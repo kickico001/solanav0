@@ -1,0 +1,116 @@
+.defi-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.defi-header {
+  margin-bottom: 2rem;
+}
+
+.defi-header h1 {
+  font-size: 2.5rem;
+  color: #1a1f36;
+  font-weight: 700;
+}
+
+.balance-card {
+  background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  backdrop-filter: blur(4px);
+  margin-bottom: 2rem;
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.balance-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.balance-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.trend-icon {
+  font-size: 1.2rem;
+}
+
+.trend-value {
+  font-weight: 600;
+}
+
+.balance-content {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.balance-value {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.balance-usd {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.balance-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.action-button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.action-button.send {
+  color: #9945FF;
+}
+
+.action-button.receive {
+  color: #14F195;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.connect-prompt {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(153, 69, 255, 0.1);
+  border-radius: 16px;
+  margin: 2rem 0;
+}
+
+.connect-prompt p {
+  font-size: 1.2rem;
+  color: #1a1f36;
+  margin: 0;
+}

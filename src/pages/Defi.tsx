@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import useStore from '../store/useStore'
+import './Defi.css'
+import { getWalletBalance } from '../utils/wallet'
 
 function Defi() {
   const { isWalletConnected, setWalletConnection } = useStore()
-  const [balance, setBalance] = useState<number | null>(null)
+  const [balance, setBalance] = useState<{ solBalance: number; usdBalance: number } | null>(null)
 
   const handleDisconnectWallet = async () => {
     try {
@@ -21,9 +23,11 @@ function Defi() {
     const fetchBalance = async () => {
       if (window.solana && window.solana.isPhantom && isWalletConnected) {
         try {
-          // This is a placeholder for actual Solana web3 balance fetching
-          // In a real implementation, you would use @solana/web3.js
-          setBalance(0.00) // Placeholder balance
+          const publicKey = window.solana.publicKey?.toString()
+          if (publicKey) {
+            const balanceInfo = await getWalletBalance(publicKey)
+            setBalance(balanceInfo)
+          }
         } catch (error) {
           console.error('Error fetching balance:', error)
           setBalance(null)
@@ -32,29 +36,36 @@ function Defi() {
     }
 
     fetchBalance()
+    const interval = setInterval(fetchBalance, 10000) // Update every 10 seconds
+
+    return () => clearInterval(interval)
   }, [isWalletConnected])
 
   return (
     <div className="defi-container">
       <header className="defi-header">
         <h1>DeFi Dashboard</h1>
-        {isWalletConnected && (
-          <button 
-            className="disconnect-wallet"
-            onClick={handleDisconnectWallet}
-          >
-            Disconnect Wallet
-          </button>
-        )}
       </header>
 
       {isWalletConnected ? (
         <>
           <div className="balance-card">
-            <h2>Wallet Balance</h2>
-            <div className="balance-value">
-              {balance !== null ? `${balance.toFixed(4)} SOL` : 'Loading...'}
+            <div className="balance-header">
+              <h2>Wallet Balance</h2>
+              <div className="balance-trend positive">
+                <span className="trend-icon">↑</span>
+                <span className="trend-value">2.5%</span>
+              </div>
             </div>
+            <div className="balance-content">
+              <div className="balance-value">
+                {balance !== null ? `${balance.solBalance.toFixed(4)} SOL` : 'Loading...'}
+              </div>
+              <div className="balance-usd">
+                ≈ ${balance !== null ? balance.usdBalance.toFixed(2) : '0.00'} USD
+              </div>
+            </div>
+
           </div>
 
           <div className="features-grid">

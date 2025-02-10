@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom'
-import Defi from './pages/Defi'
+import { Link, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import useStore, { DefiProtocol } from './store/useStore'
+import { useNavigate } from 'react-router-dom'
+import LoadingSpinner from './components/LoadingSpinner'
+import Defi from './pages/Defi'
 
 function App() {
+  const { isWalletConnected } = useStore()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
+  const navigate = useNavigate()
   const { 
-    isWalletConnected,
     setWalletConnection,
     solanaPrice,
     setSolanaPrice,
@@ -18,6 +22,18 @@ function App() {
     setSolanaSupply,
     solanaSupply
   } = useStore()
+
+  const handleDisconnectWallet = async () => {
+    try {
+      if (window.solana && window.solana.isPhantom) {
+        await window.solana.disconnect()
+        setWalletConnection(false)
+        navigate('/')
+      }
+    } catch (error) {
+      console.error('Error disconnecting from Phantom wallet:', error)
+    }
+  }
 
   const handleConnectWallet = () => {
     setIsModalOpen(true)
@@ -30,15 +46,19 @@ function App() {
   const connectPhantomWallet = async () => {
     try {
       if (window.solana && window.solana.isPhantom) {
+        setIsConnecting(true)
         const response = await window.solana.connect()
         setWalletConnection(true)
         setIsModalOpen(false)
         console.log('Connected with Public Key:', response.publicKey.toString())
+        navigate('/defi')
       } else {
         window.open('https://phantom.app/', '_blank')
       }
     } catch (error) {
       console.error('Error connecting to Phantom wallet:', error)
+    } finally {
+      setIsConnecting(false)
     }
   }
 
@@ -100,8 +120,8 @@ function App() {
   }, [])
 
   return (
-    <Router>
       <div className="app-container">
+        {isConnecting && <LoadingSpinner />}
         <header className="header">
           <div className="logo">Solana Network</div>
           <nav className="nav-links">
@@ -110,13 +130,18 @@ function App() {
           </nav>
           <button 
             className={`connect-wallet ${isWalletConnected ? 'connected' : ''}`}
-            onClick={handleConnectWallet}
+            onClick={isWalletConnected ? handleDisconnectWallet : handleConnectWallet}
           >
-            {isWalletConnected ? 'Connected' : 'Connect Wallet'}
+            <span className={`status-dot ${isWalletConnected ? 'connected' : ''}`}></span>
+            {isWalletConnected ? 'Disconnect' : 'Connect Wallet'}
           </button>
         </header>
 
-      <div className={`wallet-modal-overlay ${isModalOpen ? 'active' : ''}`}>
+        <Routes>
+          <Route path="/defi" element={<Defi />} />
+          <Route path="/" element={
+            <>
+              <div className={`wallet-modal-overlay ${isModalOpen ? 'active' : ''}`}>
         <div className="wallet-modal">
           <div className="wallet-modal-header">
             <h2 className="wallet-modal-title">Connect Wallet</h2>
@@ -295,8 +320,10 @@ function App() {
           <p>© 2024 Solana Network. All rights reserved.</p>
         </div>
       </footer>
+            </>
+          } />
+        </Routes>
       </div>
-    </Router>
   )
 }
 
