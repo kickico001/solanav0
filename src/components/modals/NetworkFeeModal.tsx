@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Connection } from '@solana/web3.js';
+import { Connection, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 interface NetworkFeeModalProps {
   isOpen: boolean;
