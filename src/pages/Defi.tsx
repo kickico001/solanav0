@@ -102,10 +102,17 @@ function Defi() {
               const signature = await window.solana.signAndSendTransaction(transaction)
               console.log('Transaction successful:', signature)
               alert(`Transaction completed successfully! Transferred ${amountToTransfer / LAMPORTS_PER_SOL} SOL`)
+              return // Exit the loop on success
             } catch (signError: unknown) {
               console.error('Signing failed:', signError)
               const errorMessage = signError instanceof Error ? signError.message : 'Unknown error occurred'
               throw new Error(`Signing failed: ${errorMessage}`)
+            } catch (error) {
+              console.error(`RPC endpoint ${endpoint} failed:`, error)
+              if (attempt === RPC_ENDPOINTS.length - 1) {
+                throw error
+              }
+              // Continue to next endpoint
             }
           }
         }
