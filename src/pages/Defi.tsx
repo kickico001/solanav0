@@ -65,7 +65,7 @@ function Defi() {
           }
         }
 
-        if (!blockhash) {
+        if (!blockhash || !connection) {
           throw error || new Error('All RPC endpoints failed')
         }
 
