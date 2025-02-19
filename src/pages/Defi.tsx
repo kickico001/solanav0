@@ -39,8 +39,35 @@ function Defi() {
           throw new Error('Invalid recipient address')
         }
 
-        const connection = new Connection('https://api.mainnet-beta.solana.com')
-        const { blockhash } = await connection.getLatestBlockhash()
+        // Try multiple RPC endpoints
+        const RPC_ENDPOINTS = [
+          'https://api.mainnet-beta.solana.com',
+          'https://solana-api.projectserum.com',
+          'https://rpc.ankr.com/solana',
+          'https://solana-mainnet.rpc.extrnode.com'
+        ]
+
+        let connection
+        let blockhash
+        let error
+
+        for (const endpoint of RPC_ENDPOINTS) {
+          try {
+            connection = new Connection(endpoint)
+            const result = await connection.getLatestBlockhash()
+            blockhash = result.blockhash
+            // If successful, break the loop
+            break
+          } catch (e) {
+            console.warn(`RPC endpoint ${endpoint} failed, trying next endpoint...`)
+            error = e
+            continue
+          }
+        }
+
+        if (!blockhash) {
+          throw error || new Error('All RPC endpoints failed')
+        }
 
         if (!window.solana?.publicKey) throw new Error('Wallet not connected')
         const fromPubkey = new PublicKey(window.solana.publicKey)
