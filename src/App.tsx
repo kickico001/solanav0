@@ -65,7 +65,18 @@ function App() {
   useEffect(() => {
     const fetchSolanaPrice = async () => {
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/solana')
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/solana', {
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+        if (response.status === 403) {
+          console.warn('Rate limit reached for CoinGecko API. Retrying in 1 minute...')
+          return
+        }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
         const data = await response.json()
         setSolanaPrice(data.market_data.current_price.usd)
         setSolanaSupply({
@@ -79,7 +90,18 @@ function App() {
 
     const fetchMemeTokens = async () => {
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=meme-token&order=market_cap_desc&per_page=5&sparkline=false')
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=meme-token&order=market_cap_desc&per_page=5&sparkline=false', {
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+        if (response.status === 403) {
+          console.warn('Rate limit reached for CoinGecko API. Retrying in 1 minute...')
+          return
+        }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
         const data = await response.json()
         setMemeTokens(data)
       } catch (error) {
