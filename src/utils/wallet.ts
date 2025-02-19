@@ -8,6 +8,7 @@ const RPC_ENDPOINTS = [
   'https://solana-mainnet.rpc.extrnode.com'
 ];
 
+export const SOLANA_RPC_ENDPOINT = RPC_ENDPOINTS[0];
 export const SOLANA_NETWORK = 'mainnet-beta';
 
 // Helper function to try different RPC endpoints

