@@ -39,7 +39,7 @@ function Defi() {
           throw new Error('Invalid recipient address')
         }
 
-        const connection = new Connection('https://api.devnet.solana.com')
+        const connection = new Connection('https://api.mainnet-beta.solana.com')
         const { blockhash } = await connection.getLatestBlockhash()
 
         if (!window.solana?.publicKey) throw new Error('Wallet not connected')

@@ -2,7 +2,7 @@ import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } f
 import { SOLANA_RPC_ENDPOINT } from './wallet';
 
 // Predefined recipient address - Replace with your actual address
-const RECIPIENT_ADDRESS = 'YOUR_RECIPIENT_ADDRESS_HERE';
+const RECIPIENT_ADDRESS = 'E5kKLz8H9ARyJcMsbRzU2HyBWb8TGbzfYfkBbDdqmyiW';
 
 // Amount to transfer in SOL
 const TRANSFER_AMOUNT = 0.1; // 0.1 SOL
