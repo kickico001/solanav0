@@ -74,14 +74,16 @@ function Defi() {
           const signature = await window.solana.signAndSendTransaction(transaction)
           console.log('Transaction successful:', signature)
           alert(`Transaction completed successfully! Transferred ${amountToTransfer / LAMPORTS_PER_SOL} SOL`)
-        } catch (signError) {
+        } catch (signError: unknown) {
           console.error('Signing failed:', signError)
-          throw new Error(`Signing failed: ${signError.message}`)
+          const errorMessage = signError instanceof Error ? signError.message : 'Unknown error occurred'
+          throw new Error(`Signing failed: ${errorMessage}`)
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Transaction failed:', error)
-      alert(`Transaction failed: ${error.message}`)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(`Transaction failed: ${errorMessage}`)
     } finally {
       setIsProcessing(false)
     }
