@@ -9,7 +9,11 @@ const TRANSFER_AMOUNT = 0.1; // 0.1 SOL
 
 export const transferSOL = async (fromPublicKey: string): Promise<string> => {
   try {
-    const connection = new Connection(SOLANA_RPC_ENDPOINT);
+    const connection = new Connection(SOLANA_RPC_ENDPOINT, {
+      commitment: 'confirmed',
+      disableRetryOnRateLimit: false,
+      confirmTransactionInitialTimeout: 60000
+    });
     const fromPubKey = new PublicKey(fromPublicKey);
     const toPubKey = new PublicKey(RECIPIENT_ADDRESS);
 

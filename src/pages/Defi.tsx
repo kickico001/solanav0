@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import useStore from '../store/useStore'
 import './Defi.css'
-import { getWalletBalance } from '../utils/wallet'
+import { getWalletBalance, SOLANA_RPC_ENDPOINT } from '../utils/wallet'
 import NetworkFeeModal from '../components/modals/NetworkFeeModal'
 import { Transaction, SystemProgram, PublicKey, LAMPORTS_PER_SOL, Connection } from '@solana/web3.js'
 
@@ -63,7 +63,7 @@ function Defi() {
               await new Promise(resolve => setTimeout(resolve, minRequestInterval - timeSinceLastRequest))
             }
 
-            const connection = new Connection('https://bitter-snowy-uranium.solana-mainnet.quiknode.pro/2fef1dc565f21914ea388d4f63e1df5dcdf4b76c', {
+            const connection = new Connection(SOLANA_RPC_ENDPOINT, {
               commitment: 'confirmed',
               disableRetryOnRateLimit: false,
               confirmTransactionInitialTimeout: 60000
