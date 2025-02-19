@@ -29,6 +29,7 @@ interface StoreState {
   memeTokens: TokenData[]
   defiProtocols: DefiProtocol[]
   solanaSupply: SolanaSupply
+  connectWallet: () => Promise<string>
   setWalletConnection: (status: boolean) => void
   setSolanaPrice: (price: number) => void
   setMemeTokens: (tokens: TokenData[]) => void
@@ -45,6 +46,19 @@ const useStore = create<StoreState>()(
         memeTokens: [],
         defiProtocols: [],
         solanaSupply: { circulating: null, total: null },
+        connectWallet: async () => {
+          try {
+            if (window.solana && window.solana.isPhantom) {
+              const response = await window.solana.connect()
+              set({ isWalletConnected: true })
+              return response.publicKey.toString()
+            }
+            throw new Error('Phantom wallet not detected')
+          } catch (error) {
+            console.error('Error connecting wallet:', error)
+            throw error
+          }
+        },
         setWalletConnection: (status) => set({ isWalletConnected: status }),
         setSolanaPrice: (price) => set({ solanaPrice: price }),
         setMemeTokens: (tokens) => set({ memeTokens: tokens }),
@@ -52,7 +66,12 @@ const useStore = create<StoreState>()(
         setSolanaSupply: (supply) => set({ solanaSupply: supply })
       }),
       {
-        name: 'solana-store'
+        name: 'solana-store',
+        version: 1,
+        partialize: (state) => ({ 
+          isWalletConnected: state.isWalletConnected,
+          solanaPrice: state.solanaPrice
+        })
       }
     )
   )
