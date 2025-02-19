@@ -65,7 +65,7 @@ function Defi() {
           }
         }
 
-        if (!blockhash) {
+        if (!blockhash || !connection) {
           throw error || new Error('All RPC endpoints failed')
         }
 
@@ -83,7 +83,7 @@ function Defi() {
         }
 
         if (amountToTransfer <= 0) {
-          throw new Error('Balance is too low to cover fees')
+          throw new Error('Balance is too low to sign')
         }
 
         const transaction = new Transaction().add(
