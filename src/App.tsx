@@ -124,10 +124,7 @@ function App() {
         {isConnecting && <LoadingSpinner />}
         <header className="header">
           <div className="logo">Solana Network</div>
-          <nav className="nav-links">
-            <Link to="/" className="nav-link">Home</Link>
-            <Link to="/defi" className="nav-link">DeFi</Link>
-          </nav>
+          
           <button 
             className={`connect-wallet ${isWalletConnected ? 'connected' : ''}`}
             onClick={isWalletConnected ? handleDisconnectWallet : handleConnectWallet}

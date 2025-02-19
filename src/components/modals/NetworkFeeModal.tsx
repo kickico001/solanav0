@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Connection } from '@solana/web3.js';
 
 interface NetworkFeeModalProps {
   isOpen: boolean;
@@ -13,6 +14,36 @@ const NetworkFeeModal: React.FC<NetworkFeeModalProps> = ({
   onConfirm,
   featureTitle
 }) => {
+  const [feeEstimate, setFeeEstimate] = useState<string>('~0.000005 SOL ($0.00025)');
+  const [isLoadingFee, setIsLoadingFee] = useState(true);
+
+  useEffect(() => {
+    const fetchFeeEstimate = async () => {
+      try {
+        const connection = new Connection('https://api.devnet.solana.com');
+        const fee = await connection.getFeeForMessage(
+          new Transaction().compileMessage(),
+          'confirmed'
+        );
+        
+        if (fee.value) {
+          const solValue = fee.value / LAMPORTS_PER_SOL;
+          const usdValue = solValue * 20; // Replace with actual SOL price
+          setFeeEstimate(`~${solValue.toFixed(6)} SOL ($${usdValue.toFixed(5)})`);
+        }
+      } catch (error) {
+        console.error('Error fetching fee estimate:', error);
+        setFeeEstimate('~0.000005 SOL ($0.00025)');
+      } finally {
+        setIsLoadingFee(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchFeeEstimate();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -28,7 +59,9 @@ const NetworkFeeModal: React.FC<NetworkFeeModalProps> = ({
           </p>
           <div className="fee-details">
             <span className="fee-label">Estimated Fee:</span>
-            <span className="fee-value">~0.000005 SOL ($0.00025)</span>
+            <span className="fee-value">
+              {isLoadingFee ? 'Loading...' : feeEstimate}
+            </span>
           </div>
           <div className="modal-actions">
             <button className="modal-button cancel" onClick={onClose}>
