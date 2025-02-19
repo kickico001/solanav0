@@ -1,14 +1,18 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 
+// QuickNode RPC endpoint
+const QUICKNODE_RPC = 'https://bitter-snowy-uranium.solana-mainnet.quiknode.pro/2fef1dc565f21914ea388d4f63e1df5dcdf4b76c';
+
 // Array of RPC endpoints for fallback
 const RPC_ENDPOINTS = [
+  QUICKNODE_RPC,
   'https://api.mainnet-beta.solana.com',
   'https://solana-api.projectserum.com',
   'https://rpc.ankr.com/solana',
   'https://solana-mainnet.rpc.extrnode.com'
 ];
 
-export const SOLANA_RPC_ENDPOINT = RPC_ENDPOINTS[0];
+export const SOLANA_RPC_ENDPOINT = QUICKNODE_RPC;
 export const SOLANA_NETWORK = 'mainnet-beta';
 
 // Helper function to add delay between requests
