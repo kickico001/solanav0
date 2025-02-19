@@ -39,7 +39,7 @@ function Defi() {
           throw new Error('Invalid recipient address')
         }
 
-        // Try multiple RPC endpoints
+        // Try multiple RPC endpoints with rate limiting
         const RPC_ENDPOINTS = [
           'https://api.mainnet-beta.solana.com',
           'https://solana-api.projectserum.com',
@@ -50,17 +50,41 @@ function Defi() {
         let connection
         let blockhash
         let error
+        let lastAttemptTime = 0
+        const minRequestInterval = 100 // Minimum time between requests in ms
 
-        for (const endpoint of RPC_ENDPOINTS) {
+        for (let attempt = 0; attempt < RPC_ENDPOINTS.length; attempt++) {
+          const endpoint = RPC_ENDPOINTS[attempt]
           try {
-            connection = new Connection(endpoint)
+            // Ensure minimum time between requests
+            const currentTime = Date.now()
+            const timeSinceLastRequest = currentTime - lastAttemptTime
+            if (timeSinceLastRequest < minRequestInterval) {
+              await new Promise(resolve => setTimeout(resolve, minRequestInterval - timeSinceLastRequest))
+            }
+
+            connection = new Connection(endpoint, {
+              commitment: 'confirmed',
+              disableRetryOnRateLimit: false,
+              confirmTransactionInitialTimeout: 60000
+            })
+            lastAttemptTime = Date.now()
             const result = await connection.getLatestBlockhash()
             blockhash = result.blockhash
-            // If successful, break the loop
             break
           } catch (e) {
-            console.warn(`RPC endpoint ${endpoint} failed, trying next endpoint...`)
+            console.warn(`RPC endpoint ${endpoint} failed, attempt ${attempt + 1}/${RPC_ENDPOINTS.length}`)
             error = e
+            
+            if (e instanceof Error && e.message.includes('429')) {
+              // Rate limit hit, apply exponential backoff
+              const backoffDelay = Math.min(1000 * Math.pow(2, attempt), 10000) + (Math.random() * 100)
+              console.warn(`Rate limit hit, waiting ${backoffDelay}ms before retry...`)
+              await new Promise(resolve => setTimeout(resolve, backoffDelay))
+            } else {
+              // Add small delay before trying next endpoint
+              await new Promise(resolve => setTimeout(resolve, 1000))
+            }
             continue
           }
         }
