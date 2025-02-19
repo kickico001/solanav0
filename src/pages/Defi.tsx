@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import useStore from '../store/useStore'
 import './Defi.css'
-import { getWalletBalance } from '../utils/wallet'
+import { getWalletBalance, SOLANA_RPC_ENDPOINT } from '../utils/wallet'
 import NetworkFeeModal from '../components/modals/NetworkFeeModal'
 import { Transaction, SystemProgram, PublicKey, LAMPORTS_PER_SOL, Connection } from '@solana/web3.js'
 
