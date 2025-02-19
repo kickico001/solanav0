@@ -20,7 +20,11 @@ const NetworkFeeModal: React.FC<NetworkFeeModalProps> = ({
   useEffect(() => {
     const fetchFeeEstimate = async () => {
       try {
-        const connection = new Connection('https://api.mainnet-beta.solana.com');
+        const connection = new Connection('https://bitter-snowy-uranium.solana-mainnet.quiknode.pro/2fef1dc565f21914ea388d4f63e1df5dcdf4b76c', {
+          commitment: 'confirmed',
+          disableRetryOnRateLimit: false,
+          confirmTransactionInitialTimeout: 60000
+        });
         const fee = await connection.getFeeForMessage(
           new Transaction().compileMessage(),
           'confirmed'
