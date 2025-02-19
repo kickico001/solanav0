@@ -4,5 +4,6 @@ interface Window {
     publicKey?: { toString(): string };
     connect(): Promise<{ publicKey: { toString(): string } }>;
     disconnect(): Promise<void>;
+    signAndSendTransaction(transaction: any): Promise<{ signature: string }>;
   };
 }
